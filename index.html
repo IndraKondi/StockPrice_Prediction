@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Market Predictor</title>
+</head>
+<body>
+    <h1>Stock Market Predictor</h1>
+    <form method="post">
+        <label for="stock_name">Select Company:</label>
+        <select name="stock_name">
+            {% for company in companies %}
+                <option value="{{ company }}" {% if company == stock_name %}selected{% endif %}>{{ company }}</option>
+            {% endfor %}
+        </select>
+        <label for="top_n">Top N Companies:</label>
+        <select name="top_n">
+            <option value="10" {% if top_n == 10 %}selected{% endif %}>10</option>
+            <option value="20" {% if top_n == 20 %}selected{% endif %}>20</option>
+            <option value="30" {% if top_n == 30 %}selected{% endif %}>30</option>
+            <option value="50" {% if top_n == 50 %}selected{% endif %}>50</option>
+            <option value="100" {% if top_n == 100 %}selected{% endif %}>100</option>
+        </select>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if future_df %}
+        <h2>Model Accuracy</h2>
+        <p>Mean Squared Error (MSE): ${{ mse }}</p>
+        <p>Root Mean Squared Error (RMSE): ${{ rmse }}</p>
+        <p>Accuracy: {{ accuracy_percentage }}%</p>
+
+        <h2>Future Predictions</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Predicted Price (USD)</th>
+            </tr>
+            {% for row in future_df.iterrows() %}
+                <tr>
+                    <td>{{ row[1]['Date'].strftime('%Y-%m-%d') }}</td>
+                    <td>${{ row[1]['Predicted Price (USD)'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Stock Performance Graphs</h2>
+        <img src="data:image/png;base64,{{ img1 }}" alt="Stock Price with Moving Averages">
+        <img src="data:image/png;base64,{{ img2 }}" alt="Original vs Predicted Prices">
+        <img src="data:image/png;base64,{{ img3 }}" alt="Future Stock Price Predictions">
+    {% endif %}
+
+    <h2>Top {{ top_n }} Companies by Annual Return</h2>
+    <table>
+        <tr>
+            <th>Company</th>
+            <th>Avg Annual Return</th>
+        </tr>
+        {% for index, row in top_companies.iterrows() %}
+            <tr>
+                <td>{{ row['Company'] }}</td>
+                <td>{{ row['Avg Annual Return'] }}%</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
